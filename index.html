@@ -4,1032 +4,295 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NotebookLM 簡報 Prompt 生成器 — 華翼品牌形象設計</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Syne:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --brand: #FCC800;
-    --brand-dark: #D4A800;
-    --ink: #1a1a1a;
-    --ink-light: #555;
-    --ink-muted: #888;
-    --surface: #ffffff;
-    --surface-2: #f8f6f0;
-    --surface-3: #f0ede3;
-    --border: rgba(0,0,0,0.1);
-    --border-strong: rgba(0,0,0,0.18);
-    --radius: 10px;
-    --radius-sm: 6px;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Noto Sans TC', 'PingFang TC', sans-serif;
-    background: var(--surface-2);
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ─── HEADER ─── */
-  header {
-    background: var(--ink);
-    padding: 0 2rem;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-  }
-
-  .logo-mark {
-    width: 32px;
-    height: 32px;
-    background: var(--brand);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .logo-mark svg {
-    width: 18px;
-    height: 18px;
-    fill: var(--ink);
-  }
-
-  .logo-text {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: #ffffff;
-    letter-spacing: 0.02em;
-  }
-
-  .logo-sub {
-    font-size: 11px;
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 0.04em;
-    font-weight: 400;
-  }
-
-  .badge {
-    background: var(--brand);
-    color: var(--ink);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    letter-spacing: 0.04em;
-  }
-
-  /* ─── HERO ─── */
-  .hero {
-    background: var(--ink);
-    padding: 3.5rem 2rem 3rem;
-    text-align: center;
-    border-bottom: 4px solid var(--brand);
-  }
-
-  .hero-eyebrow {
-    display: inline-block;
-    background: var(--brand);
-    color: var(--ink);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 20px;
-    margin-bottom: 1.2rem;
-  }
-
-  .hero h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
-    font-weight: 800;
-    color: #ffffff;
-    line-height: 1.2;
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.01em;
-  }
-
-  .hero h1 span {
-    color: var(--brand);
-  }
-
-  .hero p {
-    font-size: 15px;
-    color: rgba(255,255,255,0.55);
-    max-width: 500px;
-    margin: 0 auto;
-    line-height: 1.7;
-  }
-
-  /* ─── MAIN ─── */
-  main {
-    flex: 1;
-    max-width: 820px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem;
-  }
-
-  /* ─── CARD ─── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1.25rem;
-  }
-
-  .card-icon {
-    width: 34px;
-    height: 34px;
-    background: var(--brand);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--ink);
-  }
-
-  .card-title span {
-    display: block;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--ink-muted);
-    margin-top: 1px;
-  }
-
-  /* ─── FORM ─── */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .form-grid.full { grid-template-columns: 1fr; }
-
-  @media (max-width: 580px) {
-    .form-grid { grid-template-columns: 1fr; }
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .field.span2 { grid-column: 1 / -1; }
-
-  label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  label span {
-    color: #e84040;
-    margin-left: 2px;
-  }
-
-  input[type="text"],
-  input[type="number"],
-  select,
-  textarea {
-    width: 100%;
-    padding: 10px 13px;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px;
-    color: var(--ink);
-    background: var(--surface-2);
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-
-  input[type="text"]:focus,
-  input[type="number"]:focus,
-  select:focus,
-  textarea:focus {
-    border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(252,200,0,0.2);
-    background: #fff;
-  }
-
-  textarea { resize: vertical; min-height: 90px; }
-
-  select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
-    cursor: pointer;
-  }
-
-  /* ─── TAG CHECKBOXES ─── */
-  .tag-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .tag-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 13px;
-    background: var(--surface-2);
-    border: 1.5px solid var(--border-strong);
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--ink-light);
-    user-select: none;
-    transition: all 0.15s;
-  }
-
-  .tag-label input { display: none; }
-
-  .tag-label:hover {
-    border-color: var(--brand);
-    color: var(--ink);
-  }
-
-  .tag-label.checked {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: var(--ink);
-    font-weight: 700;
-  }
-
-  /* ─── STEP COUNTER ─── */
-  .steps {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    margin-bottom: 1.75rem;
-    overflow: hidden;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .step {
-    flex: 1;
-    text-align: center;
-    padding: 10px 4px;
-    font-size: 12px;
-    color: var(--ink-muted);
-    font-weight: 500;
-    border-right: 1px solid var(--border);
-    background: var(--surface);
-    transition: all 0.15s;
-  }
-
-  .step:last-child { border-right: none; }
-
-  .step.active {
-    background: var(--brand);
-    color: var(--ink);
-    font-weight: 700;
-  }
-
-  .step.done {
-    background: var(--surface-3);
-    color: var(--ink-light);
-  }
-
-  /* ─── BUTTONS ─── */
-  .btn-row {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-  }
-
-  .btn {
-    padding: 11px 24px;
-    border-radius: var(--radius-sm);
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    border: 1.5px solid transparent;
-    transition: all 0.15s;
-    letter-spacing: 0.02em;
-  }
-
-  .btn-ghost {
-    background: transparent;
-    border-color: var(--border-strong);
-    color: var(--ink-light);
-  }
-
-  .btn-ghost:hover {
-    border-color: var(--ink);
-    color: var(--ink);
-  }
-
-  .btn-primary {
-    background: var(--brand);
-    color: var(--ink);
-    border-color: var(--brand);
-  }
-
-  .btn-primary:hover {
-    background: var(--brand-dark);
-    border-color: var(--brand-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(252,200,0,0.4);
-  }
-
-  .btn-primary:active { transform: translateY(0); }
-
-  .btn-copy {
-    background: var(--ink);
-    color: #fff;
-    border-color: var(--ink);
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .btn-copy:hover {
-    background: #333;
-    border-color: #333;
-  }
-
-  .btn-copy.copied {
-    background: #1a7a3f;
-    border-color: #1a7a3f;
-  }
-
-  /* ─── OUTPUT ─── */
-  .output-section { display: none; }
-  .output-section.visible { display: block; }
-
-  .output-box {
-    background: var(--ink);
-    border-radius: var(--radius);
-    padding: 1.75rem;
-    position: relative;
-    margin-bottom: 1.25rem;
-  }
-
-  .output-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--brand);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .output-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(252,200,0,0.2);
-  }
-
-  #output-text {
-    font-family: 'Noto Sans TC', monospace;
-    font-size: 13.5px;
-    line-height: 1.9;
-    color: rgba(255,255,255,0.9);
-    white-space: pre-wrap;
-    word-break: break-word;
-    border: none;
-    background: transparent;
-    width: 100%;
-    resize: none;
-    outline: none;
-    min-height: 320px;
-  }
-
-  .output-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .char-count {
-    font-size: 12px;
-    color: var(--ink-muted);
-  }
-
-  /* ─── GUIDE BOX ─── */
-  .guide {
-    background: #fffbea;
-    border: 1.5px solid rgba(252,200,0,0.5);
-    border-left: 4px solid var(--brand);
-    border-radius: var(--radius-sm);
-    padding: 1rem 1.25rem;
-    font-size: 13px;
-    color: #5a4800;
-    line-height: 1.7;
-    margin-top: 1.25rem;
-  }
-
-  .guide strong { color: #3a2f00; }
-
-  .guide ol {
-    margin: 0.5rem 0 0 1.25rem;
-  }
-
-  .guide ol li { margin-bottom: 0.3rem; }
-
-  /* ─── FOOTER ─── */
-  footer {
-    background: var(--ink);
-    padding: 1.5rem 2rem;
-    text-align: center;
-    margin-top: auto;
-    border-top: 3px solid var(--brand);
-  }
-
-  .footer-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 0.5rem;
-  }
-
-  .footer-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--brand);
-    border-radius: 50%;
-  }
-
-  .footer-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.04em;
-  }
-
-  footer p {
-    font-size: 11px;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.04em;
-  }
-
-  .huayi-link {
-    color: var(--brand);
-    text-decoration: none;
-  }
-  .huayi-link:hover { text-decoration: underline; }
-
-  /* ─── FRAMEWORK RADIO CARDS ─── */
-  .framework-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-  }
-
-  .framework-label { cursor: pointer; }
-  .framework-label input { display: none; }
-
-  .fw-card {
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--radius);
-    padding: 14px 12px 12px;
-    background: var(--surface-2);
-    transition: all 0.15s;
-    position: relative;
-    text-align: center;
-    min-height: 110px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .fw-top {
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .fw-badge {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 10px;
-    letter-spacing: 0.04em;
-  }
-
-  .fw-badge.recommended {
-    background: var(--brand);
-    color: var(--ink);
-  }
-
-  .fw-icon { font-size: 22px; line-height: 1; }
-
-  .fw-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.3;
-  }
-
-  .fw-desc {
-    font-size: 11px;
-    color: var(--ink-muted);
-    line-height: 1.4;
-  }
-
-  .fw-card:hover {
-    border-color: var(--brand);
-    background: #fffbea;
-  }
-
-  .framework-label input:checked + .fw-card {
-    border-color: var(--brand);
-    border-width: 2px;
-    background: #fffbea;
-    box-shadow: 0 0 0 3px rgba(252,200,0,0.15);
-  }
-
-  /* ─── TOGGLE BUTTON ─── */
-  .toggle-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 1rem;
-  }
-
-  .toggle-btn {
-    padding: 9px 22px;
-    border-radius: var(--radius-sm);
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    border: 1.5px solid var(--border-strong);
-    background: var(--surface-2);
-    color: var(--ink-muted);
-    transition: all 0.15s;
-  }
-
-  .toggle-btn.active {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: var(--ink);
-  }
-
-  /* ─── STYLE RADIO CARDS ─── */
-  .style-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-  }
-
-  .style-label { cursor: pointer; }
-  .style-label input { display: none; }
-
-  .sty-card {
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--radius);
-    padding: 14px 10px 12px;
-    background: var(--surface-2);
-    transition: all 0.15s;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    position: relative;
-    min-height: 95px;
-  }
-
-  .sty-icon { font-size: 22px; line-height: 1; }
-
-  .sty-name {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.4;
-  }
-
-  .sty-card:hover {
-    border-color: var(--brand);
-    background: #fffbea;
-  }
-
-  .style-label input:checked + .sty-card {
-    border-color: var(--brand);
-    border-width: 2px;
-    background: #fffbea;
-    box-shadow: 0 0 0 3px rgba(252,200,0,0.15);
-  }
-
-  #stylePickerWrap { transition: opacity 0.2s; }
-  #stylePickerWrap.hidden { opacity: 0.3; pointer-events: none; }
-
-
-  .hint {
-    font-size: 11.5px;
-    color: var(--ink-muted);
-    margin-top: 2px;
-  }
-
-  .section-sep {
-    height: 1px;
-    background: var(--border);
-    margin: 1.25rem 0;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .output-section.visible {
-    animation: fadeUp 0.3s ease;
-    display: block;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#FCC800;--brand-dark:#D4A800;--ink:#1a1a1a;--ink-light:#555;--ink-muted:#999;--surface:#fff;--surface-2:#f7f5ef;--border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.16);--radius:12px;--radius-sm:7px}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans TC','PingFang TC',sans-serif;font-size:16px;background:var(--surface-2);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--ink);padding:0 2.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-mark{width:36px;height:36px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:20px;height:20px;fill:var(--ink)}
+.logo-text{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:.02em}
+.logo-sub{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.05em}
+.header-badge{background:var(--brand);color:var(--ink);font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px}
+.hero{background:var(--ink);padding:4rem 2.5rem 3.5rem;text-align:center;border-bottom:4px solid var(--brand)}
+.hero-eyebrow{display:inline-block;background:var(--brand);color:var(--ink);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:1.25rem}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:.75rem}
+.hero h1 span{color:var(--brand)}
+.hero p{font-size:17px;color:rgba(255,255,255,.5);max-width:580px;margin:0 auto;line-height:1.7}
+main{flex:1;width:100%;max-width:1100px;margin:0 auto;padding:2.5rem 2rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.card-icon{width:38px;height:38px;background:var(--brand);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--ink)}
+.card-title span{display:block;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:400;color:var(--ink-muted);margin-top:2px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.form-grid.full{grid-template-columns:1fr}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.span2{grid-column:1/-1}
+label{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.05em;text-transform:uppercase}
+label .req{color:#e84040;margin-left:2px}
+.hint{font-size:12.5px;color:var(--ink-muted);margin-top:2px;line-height:1.5}
+input[type=text],input[type=number],select,textarea{width:100%;padding:11px 14px;font-family:'Noto Sans TC',sans-serif;font-size:15px;color:var(--ink);background:var(--surface-2);border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(252,200,0,.18);background:#fff}
+textarea{resize:vertical;min-height:100px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
+.tag-group{display:flex;flex-wrap:wrap;gap:9px}
+.tag-label{display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface-2);border:1.5px solid var(--border-strong);border-radius:20px;cursor:pointer;font-size:14px;color:var(--ink-light);user-select:none;transition:all .15s}
+.tag-label input{display:none}
+.tag-label:hover{border-color:var(--brand);color:var(--ink)}
+.tag-label.checked{background:var(--brand);border-color:var(--brand);color:var(--ink);font-weight:700}
+.fw-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.fw-lbl{cursor:pointer}
+.fw-lbl input{display:none}
+.fw-card{border:1.5px solid var(--border-strong);border-radius:var(--radius);padding:16px 14px 14px;background:var(--surface-2);transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:115px;position:relative}
+.fw-badge{position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--brand);color:var(--ink)}
+.fw-icon{font-size:26px;line-height:1;margin-top:4px}
+.fw-name{font-size:13px;font-weight:700;color:var(--ink);line-height:1.35}
+.fw-desc{font-size:11.5px;color:var(--ink-muted);line-height:1.4}
+.fw-card:hover{border-color:var(--brand);background:#fffbea}
+.fw-lbl input:checked+.fw-card{border:2px solid var(--brand);background:#fffbea;box-shadow:0 0 0 3px rgba(252,200,0,.15)}
+.toggle-row{display:flex;gap:10px;margin-bottom:1.25rem}
+.toggle-btn{padding:10px 24px;border-radius:var(--radius-sm);font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border:1.5px solid var(--border-strong);background:var(--surface-2);color:var(--ink-muted);transition:all .15s}
+.toggle-btn.active{background:var(--brand);border-color:var(--brand);color:var(--ink)}
+.sty-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px}
+.sty-lbl{cursor:pointer}
+.sty-lbl input{display:none}
+.sty-card{border:1.5px solid var(--border-strong);border-radius:var(--radius);padding:16px 12px 14px;background:var(--surface-2);transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px;position:relative;min-height:100px}
+.sty-icon{font-size:26px;line-height:1}
+.sty-name{font-size:13px;font-weight:700;color:var(--ink);line-height:1.4}
+.sty-card:hover{border-color:var(--brand);background:#fffbea}
+.sty-lbl input:checked+.sty-card{border:2px solid var(--brand);background:#fffbea;box-shadow:0 0 0 3px rgba(252,200,0,.15)}
+#styleWrap{transition:opacity .2s}
+#styleWrap.hidden{opacity:.3;pointer-events:none}
+.btn-row{display:flex;gap:12px;justify-content:flex-end;margin-top:1.75rem}
+.btn{padding:12px 28px;border-radius:var(--radius-sm);font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .15s}
+.btn-ghost{background:transparent;border-color:var(--border-strong);color:var(--ink-light)}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.btn-primary{background:var(--brand);color:var(--ink);border-color:var(--brand);font-size:16px;padding:13px 36px}
+.btn-primary:hover{background:var(--brand-dark);border-color:var(--brand-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(252,200,0,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-copy{background:var(--ink);color:#fff;border-color:var(--ink);display:flex;align-items:center;gap:8px}
+.btn-copy:hover{background:#333}
+.btn-copy.copied{background:#1a7a3f;border-color:#1a7a3f}
+.output-sec{display:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.output-sec.visible{display:block;animation:fadeUp .3s ease}
+.output-box{background:var(--ink);border-radius:var(--radius);padding:2rem;margin-bottom:1.25rem}
+.output-lbl{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-bottom:1.25rem;display:flex;align-items:center;gap:10px}
+.output-lbl::after{content:'';flex:1;height:1px;background:rgba(252,200,0,.2)}
+#outText{font-family:'Noto Sans TC',monospace;font-size:14px;line-height:2;color:rgba(255,255,255,.88);white-space:pre-wrap;word-break:break-word;border:none;background:transparent;width:100%;resize:none;outline:none;min-height:400px}
+.out-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.char-cnt{font-size:13px;color:var(--ink-muted)}
+.guide{background:#fffbea;border:1.5px solid rgba(252,200,0,.4);border-left:5px solid var(--brand);border-radius:var(--radius-sm);padding:1.25rem 1.5rem;font-size:14.5px;color:#5a4800;line-height:1.8;margin-top:1.25rem}
+.guide strong{color:#3a2f00}
+.guide ol{margin:.5rem 0 0 1.5rem}
+.guide ol li{margin-bottom:.4rem}
+footer{background:var(--ink);padding:2rem 2.5rem;text-align:center;margin-top:auto;border-top:4px solid var(--brand)}
+.footer-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:.6rem}
+.footer-dot{width:8px;height:8px;background:var(--brand);border-radius:50%}
+.footer-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;letter-spacing:.04em}
+footer p{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.03em}
+footer p+p{margin-top:4px}
+.footer-link{color:var(--brand);text-decoration:none}
+.footer-link:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-
-<!-- ─── HEADER ─── -->
 <header>
   <a class="logo" href="https://huayi.tw" target="_blank">
-    <div class="logo-mark">
-      <svg viewBox="0 0 18 18"><path d="M9 1L1 5v8l8 4 8-4V5L9 1zm0 2.2l5.6 2.8-5.6 2.8L3.4 6 9 3.2zM2.5 7.5l5.75 2.88V15L2.5 12.1V7.5zm7.25 7.5v-5.12l5.75-2.88v4.6l-5.75 2.9z"/></svg>
-    </div>
-    <div>
-      <div class="logo-text">華翼品牌形象設計</div>
-      <div class="logo-sub">HUAYI BRAND DESIGN</div>
-    </div>
+    <div class="logo-mark"><svg viewBox="0 0 18 18"><path d="M9 1L1 5v8l8 4 8-4V5L9 1zm0 2.2l5.6 2.8-5.6 2.8L3.4 6 9 3.2zM2.5 7.5l5.75 2.88V15L2.5 12.1V7.5zm7.25 7.5v-5.12l5.75-2.88v4.6l-5.75 2.9z"/></svg></div>
+    <div><div class="logo-text">華翼品牌形象設計</div><div class="logo-sub">HUAYI BRAND DESIGN</div></div>
   </a>
-  <div class="badge">NotebookLM 工具</div>
+  <div class="header-badge">NotebookLM 工具</div>
 </header>
 
-<!-- ─── HERO ─── -->
 <div class="hero">
   <div class="hero-eyebrow">AI 簡報工具</div>
   <h1>NotebookLM<br><span>簡報 Prompt 生成器</span></h1>
-  <p>填入你的簡報需求，一鍵生成結構化的 Prompt，貼入 NotebookLM 即可產出高品質簡報大綱</p>
+  <p>填入簡報需求，自動生成逐頁詳細 Prompt，貼入 NotebookLM 即可產出結構完整的高品質簡報</p>
 </div>
 
-<!-- ─── MAIN ─── -->
 <main>
-
-  <!-- STEP INDICATOR -->
-  <div class="steps">
-    <div class="step active" id="s1">① 簡報基本設定</div>
-    <div class="step" id="s2">② 內容與結構</div>
-    <div class="step" id="s3">③ 風格偏好</div>
-    <div class="step active" id="s4" style="background:var(--brand);color:var(--ink);font-weight:700">✦ 生成 Prompt</div>
-  </div>
-
-  <!-- SECTION 1: BASIC INFO -->
+  <!-- 基本設定 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-icon">📋</div>
-      <div class="card-title">
-        簡報基本設定
-        <span>Basic Information</span>
-      </div>
-    </div>
+    <div class="card-header"><div class="card-icon">📋</div><div class="card-title">簡報基本設定 <span>Basic Information</span></div></div>
     <div class="form-grid">
       <div class="field span2">
-        <label>簡報主題 <span>*</span></label>
-        <input type="text" id="topic" placeholder="例：2025年台灣中小企業AI轉型趨勢分析" />
-        <p class="hint">建議具體描述，越清楚生成品質越好</p>
+        <label>簡報主題 <span class="req">*</span></label>
+        <input type="text" id="topic" placeholder="例：2025年台灣中小企業 AI 轉型趨勢分析" />
+        <p class="hint">越具體越好，會直接影響每頁 Prompt 的品質</p>
       </div>
       <div class="field">
-        <label>目標受眾 <span>*</span></label>
+        <label>目標受眾 <span class="req">*</span></label>
         <select id="audience">
           <option value="">請選擇受眾</option>
-          <option value="公司高層主管／董事會">公司高層主管／董事會</option>
-          <option value="中階主管及部門主管">中階主管及部門主管</option>
-          <option value="一般員工／同仁">一般員工／同仁</option>
-          <option value="外部客戶或潛在客戶">外部客戶或潛在客戶</option>
-          <option value="投資人或合作夥伴">投資人或合作夥伴</option>
-          <option value="學員或培訓對象">學員或培訓對象</option>
-          <option value="一般大眾">一般大眾</option>
-          <option value="政府或公部門">政府或公部門</option>
+          <option>公司高層主管／董事會</option><option>中階主管及部門主管</option>
+          <option>一般員工／同仁</option><option>外部客戶或潛在客戶</option>
+          <option>投資人或合作夥伴</option><option>學員或培訓對象</option>
+          <option>一般大眾</option><option>政府或公部門</option>
         </select>
       </div>
       <div class="field">
         <label>簡報語言</label>
         <select id="language">
-          <option value="繁體中文">繁體中文</option>
-          <option value="英文">英文</option>
-          <option value="繁體中文＋英文（雙語）">繁體中文＋英文（雙語）</option>
-          <option value="簡體中文">簡體中文</option>
+          <option>繁體中文</option><option>英文</option>
+          <option>繁體中文＋英文（雙語）</option><option>簡體中文</option>
         </select>
       </div>
       <div class="field">
-        <label>預計投影片頁數</label>
+        <label>頁數規劃</label>
         <select id="slides">
-          <option value="5-8張（精簡版）">5–8 張（精簡版）</option>
-          <option value="10-15張（標準版）" selected>10–15 張（標準版）</option>
-          <option value="15-20張（完整版）">15–20 張（完整版）</option>
-          <option value="20張以上（深度報告）">20 張以上（深度報告）</option>
+          <option value="5-8">5–8 張（精簡版）</option>
+          <option value="10-12" selected>10–12 張（標準版）</option>
+          <option value="15-18">15–18 張（完整版）</option>
+          <option value="20+">20 張以上（深度報告）</option>
         </select>
       </div>
       <div class="field">
-        <label>簡報時長</label>
+        <label>預計時長</label>
         <select id="duration">
-          <option value="5-10分鐘">5–10 分鐘</option>
-          <option value="15-20分鐘" selected>15–20 分鐘</option>
-          <option value="30分鐘">30 分鐘</option>
-          <option value="45-60分鐘">45–60 分鐘</option>
-          <option value="不限定">不限定</option>
+          <option>5-10分鐘</option><option selected>15-20分鐘</option>
+          <option>30分鐘</option><option>45-60分鐘</option>
         </select>
       </div>
-    </div>
-  </div>
-
-  <!-- SECTION 2: CONTENT -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon">📝</div>
-      <div class="card-title">
-        內容與結構設定
-        <span>Content &amp; Structure</span>
-      </div>
-    </div>
-    <div class="form-grid full">
       <div class="field">
         <label>簡報目的</label>
         <select id="purpose">
-          <option value="說明與教育（讓受眾理解某個概念）">說明與教育（讓受眾理解某個概念）</option>
-          <option value="提案與說服（讓受眾接受某個想法或方案）">提案與說服（讓受眾接受某個想法或方案）</option>
-          <option value="報告與彙整（呈現現況、數據或結果）">報告與彙整（呈現現況、數據或結果）</option>
-          <option value="培訓與教學（帶領受眾學習技能）">培訓與教學（帶領受眾學習技能）</option>
-          <option value="品牌推廣（展示品牌形象或產品）">品牌推廣（展示品牌形象或產品）</option>
-          <option value="啟發與激勵（點燃受眾行動意願）">啟發與激勵（點燃受眾行動意願）</option>
+          <option value="說明與教育（讓受眾理解概念）">說明與教育</option>
+          <option value="提案與說服（讓受眾接受方案）">提案與說服</option>
+          <option value="報告與彙整（呈現現況數據）">報告與彙整</option>
+          <option value="培訓與教學（帶領學習技能）">培訓與教學</option>
+          <option value="品牌推廣（展示品牌或產品）">品牌推廣</option>
+          <option value="啟發與激勵（點燃行動意願）">啟發與激勵</option>
         </select>
-      </div>
-
-      <div class="field">
-        <label>希望包含的章節結構</label>
-        <div class="tag-group" id="sections">
-          <label class="tag-label checked"><input type="checkbox" value="封面頁" checked>封面頁</label>
-          <label class="tag-label checked"><input type="checkbox" value="目錄／章節索引" checked>目錄頁</label>
-          <label class="tag-label checked"><input type="checkbox" value="問題或背景說明" checked>問題背景</label>
-          <label class="tag-label checked"><input type="checkbox" value="核心內容（數據、案例、論點）" checked>核心內容</label>
-          <label class="tag-label"><input type="checkbox" value="競品或市場分析">競品分析</label>
-          <label class="tag-label checked"><input type="checkbox" value="解決方案或行動建議" checked>解決方案</label>
-          <label class="tag-label"><input type="checkbox" value="時程規劃或Roadmap">時程規劃</label>
-          <label class="tag-label"><input type="checkbox" value="預算或資源說明">預算說明</label>
-          <label class="tag-label checked"><input type="checkbox" value="結論與下一步行動" checked>結論行動</label>
-          <label class="tag-label"><input type="checkbox" value="Q&A或互動頁">Q&A 頁</label>
-          <label class="tag-label"><input type="checkbox" value="附錄或補充資料">附錄</label>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>核心訊息（每行一條，最多5條）</label>
-        <textarea id="keypoints" placeholder="例：&#10;台灣AI工具採用率年成長40%&#10;中小企業導入AI成本比想像低80%&#10;從單點工具到系統整合是關鍵轉變"></textarea>
-        <p class="hint">這些是你希望受眾最終記住的重點，留空則由 AI 自行規劃</p>
-      </div>
-
-      <div class="field">
-        <label>補充資料或背景脈絡（選填）</label>
-        <textarea id="context" placeholder="例：公司名稱、產業別、現有資料連結、特定數據、需要引用的報告..." style="min-height:70px;"></textarea>
       </div>
     </div>
   </div>
 
-  <!-- SECTION 3: 簡報大綱架構 -->
+  <!-- 核心訊息 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-icon">🗂️</div>
-      <div class="card-title">
-        簡報大綱架構
-        <span>Presentation Framework</span>
+    <div class="card-header"><div class="card-icon">🎯</div><div class="card-title">核心訊息與背景 <span>Key Messages &amp; Context</span></div></div>
+    <div class="form-grid full">
+      <div class="field">
+        <label>核心訊息（每行一條，最多 5 條）</label>
+        <textarea id="keypoints" placeholder="例：&#10;台灣AI工具採用率年成長40%&#10;中小企業導入AI成本比想像低80%&#10;從單點工具到系統整合是關鍵轉變"></textarea>
+        <p class="hint">整份簡報需貫穿這些重點，每頁 Prompt 都會參考。留空則由 AI 自行規劃</p>
+      </div>
+      <div class="field">
+        <label>補充背景資料（選填）</label>
+        <textarea id="context" placeholder="例：公司名稱、產業別、特定數據、需引用的報告..." style="min-height:80px;"></textarea>
       </div>
     </div>
+  </div>
+
+  <!-- 架構 -->
+  <div class="card">
+    <div class="card-header"><div class="card-icon">🗂️</div><div class="card-title">簡報大綱架構 <span>Presentation Framework</span></div></div>
     <div class="form-grid full">
       <div class="field">
         <label>選擇大綱邏輯架構</label>
-        <div class="framework-group" id="frameworks">
-          <label class="framework-label">
-            <input type="radio" name="framework" value="問題與解決方案" checked>
-            <div class="fw-card">
-              <div class="fw-top">
-                <span class="fw-badge recommended">推薦</span>
-              </div>
-              <div class="fw-icon">🎯</div>
-              <div class="fw-name">問題與解決方案</div>
-              <div class="fw-desc">先揭示痛點，再提出解法</div>
-            </div>
+        <div class="fw-group">
+          <label class="fw-lbl"><input type="radio" name="fw" value="problem_solution" checked>
+            <div class="fw-card"><span class="fw-badge">推薦</span><div class="fw-icon">🎯</div><div class="fw-name">問題與解決方案</div><div class="fw-desc">先揭示痛點，再提出解法</div></div>
           </label>
-          <label class="framework-label">
-            <input type="radio" name="framework" value="起承轉合（故事法）">
-            <div class="fw-card">
-              <div class="fw-top"></div>
-              <div class="fw-icon">📖</div>
-              <div class="fw-name">起承轉合（故事法）</div>
-              <div class="fw-desc">敘事弧線，情感共鳴</div>
-            </div>
+          <label class="fw-lbl"><input type="radio" name="fw" value="story">
+            <div class="fw-card"><div class="fw-icon">📖</div><div class="fw-name">起承轉合（故事法）</div><div class="fw-desc">敘事弧線，情感共鳴</div></div>
           </label>
-          <label class="framework-label">
-            <input type="radio" name="framework" value="時間軸演進">
-            <div class="fw-card">
-              <div class="fw-top"></div>
-              <div class="fw-icon">⏱️</div>
-              <div class="fw-name">時間軸演進</div>
-              <div class="fw-desc">過去→現在→未來脈絡</div>
-            </div>
+          <label class="fw-lbl"><input type="radio" name="fw" value="timeline">
+            <div class="fw-card"><div class="fw-icon">⏱️</div><div class="fw-name">時間軸演進</div><div class="fw-desc">過去→現在→未來脈絡</div></div>
           </label>
-          <label class="framework-label">
-            <input type="radio" name="framework" value="金字塔原則（SCQA）">
-            <div class="fw-card">
-              <div class="fw-top"></div>
-              <div class="fw-icon">🔺</div>
-              <div class="fw-name">金字塔原則（SCQA）</div>
-              <div class="fw-desc">結論先行，邏輯嚴謹</div>
-            </div>
+          <label class="fw-lbl"><input type="radio" name="fw" value="scqa">
+            <div class="fw-card"><div class="fw-icon">🔺</div><div class="fw-name">金字塔原則（SCQA）</div><div class="fw-desc">結論先行，邏輯嚴謹</div></div>
           </label>
-          <label class="framework-label">
-            <input type="radio" name="framework" value="結論與數據先行">
-            <div class="fw-card">
-              <div class="fw-top"></div>
-              <div class="fw-icon">📊</div>
-              <div class="fw-name">結論與數據先行</div>
-              <div class="fw-desc">先亮結果，再解釋原因</div>
-            </div>
+          <label class="fw-lbl"><input type="radio" name="fw" value="data_first">
+            <div class="fw-card"><div class="fw-icon">📊</div><div class="fw-name">結論與數據先行</div><div class="fw-desc">先亮結果，再解釋原因</div></div>
           </label>
-          <label class="framework-label">
-            <input type="radio" name="framework" value="自訂大綱邏輯">
-            <div class="fw-card">
-              <div class="fw-top"></div>
-              <div class="fw-icon">✏️</div>
-              <div class="fw-name">自訂大綱邏輯</div>
-              <div class="fw-desc">由 AI 依內容自由發揮</div>
-            </div>
+          <label class="fw-lbl"><input type="radio" name="fw" value="custom">
+            <div class="fw-card"><div class="fw-icon">✏️</div><div class="fw-name">自訂大綱邏輯</div><div class="fw-desc">由 AI 依內容自由發揮</div></div>
           </label>
+        </div>
+      </div>
+      <div class="field">
+        <label>希望包含的章節（可複選）</label>
+        <div class="tag-group" id="sections">
+          <label class="tag-label checked"><input type="checkbox" value="封面頁" checked>封面頁</label>
+          <label class="tag-label checked"><input type="checkbox" value="目錄頁" checked>目錄頁</label>
+          <label class="tag-label checked"><input type="checkbox" value="背景與問題說明" checked>問題背景</label>
+          <label class="tag-label checked"><input type="checkbox" value="核心內容" checked>核心內容</label>
+          <label class="tag-label"><input type="checkbox" value="競品或市場分析">競品分析</label>
+          <label class="tag-label checked"><input type="checkbox" value="解決方案或行動建議" checked>解決方案</label>
+          <label class="tag-label"><input type="checkbox" value="時程規劃或 Roadmap">時程規劃</label>
+          <label class="tag-label"><input type="checkbox" value="預算或資源說明">預算說明</label>
+          <label class="tag-label checked"><input type="checkbox" value="結論與下一步行動" checked>結論行動</label>
+          <label class="tag-label"><input type="checkbox" value="Q&A 互動頁">Q&A 頁</label>
+          <label class="tag-label"><input type="checkbox" value="附錄或補充資料">附錄</label>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SECTION 4: 建議視覺風格 -->
+  <!-- 視覺風格 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-icon">🖼️</div>
-      <div class="card-title">
-        建議視覺風格
-        <span>Visual Style Preference</span>
-      </div>
-    </div>
+    <div class="card-header"><div class="card-icon">🖼️</div><div class="card-title">建議視覺風格 <span>Visual Style</span></div></div>
     <div class="form-grid full">
       <div class="field">
         <label>是否指定視覺風格？</label>
         <div class="toggle-row">
-          <button class="toggle-btn active" id="styleNeedBtn" onclick="setStyleNeed(true)">✅ 需要</button>
-          <button class="toggle-btn" id="styleNoBtn" onclick="setStyleNeed(false)">✕ 不需要</button>
+          <button class="toggle-btn active" id="sNeedBtn" onclick="setStyle(true)">✅ 需要</button>
+          <button class="toggle-btn" id="sNoBtn" onclick="setStyle(false)">✕ 不需要</button>
         </div>
       </div>
-      <div class="field" id="stylePickerWrap">
+      <div class="field" id="styleWrap">
         <label>選擇視覺風格</label>
-        <div class="style-group" id="styleGroup">
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="專業企業商務風格" checked>
-            <div class="sty-card">
-              <span class="fw-badge recommended">推薦</span>
-              <div class="sty-icon">🖥️</div>
-              <div class="sty-name">專業企業商務風格</div>
-            </div>
+        <div class="sty-group">
+          <label class="sty-lbl"><input type="radio" name="vs" value="專業企業商務風格" checked>
+            <div class="sty-card"><span class="fw-badge">推薦</span><div class="sty-icon">🖥️</div><div class="sty-name">專業企業商務風格</div></div>
           </label>
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="手繪日記風格＋主角插圖">
-            <div class="sty-card">
-              <div class="sty-icon">🎨</div>
-              <div class="sty-name">手繪日記風格＋主角插圖</div>
-            </div>
+          <label class="sty-lbl"><input type="radio" name="vs" value="手繪日記風格＋主角插圖">
+            <div class="sty-card"><div class="sty-icon">🎨</div><div class="sty-name">手繪日記風格＋主角插圖</div></div>
           </label>
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="溫馨插畫風格">
-            <div class="sty-card">
-              <div class="sty-icon">🌸</div>
-              <div class="sty-name">溫馨插畫風格</div>
-            </div>
+          <label class="sty-lbl"><input type="radio" name="vs" value="溫馨插畫風格">
+            <div class="sty-card"><div class="sty-icon">🌸</div><div class="sty-name">溫馨插畫風格</div></div>
           </label>
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="高對比度極簡風格">
-            <div class="sty-card">
-              <div class="sty-icon">◼️</div>
-              <div class="sty-name">高對比度極簡風格</div>
-            </div>
+          <label class="sty-lbl"><input type="radio" name="vs" value="高對比度極簡風格">
+            <div class="sty-card"><div class="sty-icon">◼️</div><div class="sty-name">高對比極簡風格</div></div>
           </label>
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="2.5D 等距視角風格＋主角">
-            <div class="sty-card">
-              <div class="sty-icon">🧊</div>
-              <div class="sty-name">2.5D 等距視角風格＋主角</div>
-            </div>
+          <label class="sty-lbl"><input type="radio" name="vs" value="2.5D 等距視角風格＋主角">
+            <div class="sty-card"><div class="sty-icon">🧊</div><div class="sty-name">2.5D 等距視角風格</div></div>
           </label>
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="3D 奶油 UI 科技風格">
-            <div class="sty-card">
-              <div class="sty-icon">💠</div>
-              <div class="sty-name">3D 奶油 UI 科技風格</div>
-            </div>
+          <label class="sty-lbl"><input type="radio" name="vs" value="3D 奶油 UI 科技風格">
+            <div class="sty-card"><div class="sty-icon">💠</div><div class="sty-name">3D 奶油 UI 科技風格</div></div>
           </label>
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="雜誌編輯風格">
-            <div class="sty-card">
-              <div class="sty-icon">📰</div>
-              <div class="sty-name">雜誌編輯風格</div>
-            </div>
+          <label class="sty-lbl"><input type="radio" name="vs" value="雜誌編輯風格">
+            <div class="sty-card"><div class="sty-icon">📰</div><div class="sty-name">雜誌編輯風格</div></div>
           </label>
-          <label class="style-label">
-            <input type="radio" name="vstyle" value="資訊圖表（Infographic）風格">
-            <div class="sty-card">
-              <div class="sty-icon">📈</div>
-              <div class="sty-name">資訊圖表 Infographic</div>
-            </div>
+          <label class="sty-lbl"><input type="radio" name="vs" value="資訊圖表（Infographic）風格">
+            <div class="sty-card"><div class="sty-icon">📈</div><div class="sty-name">Infographic 風格</div></div>
           </label>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SECTION 5: STYLE -->
+  <!-- 語調 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-icon">🎨</div>
-      <div class="card-title">
-        語調與格式偏好
-        <span>Tone &amp; Format</span>
-      </div>
-    </div>
+    <div class="card-header"><div class="card-icon">🎨</div><div class="card-title">語調與特殊元素 <span>Tone &amp; Extras</span></div></div>
     <div class="form-grid">
       <div class="field">
         <label>簡報語調</label>
         <select id="tone">
-          <option value="專業正式">專業正式</option>
-          <option value="親切易懂">親切易懂</option>
-          <option value="熱情激勵">熱情激勵</option>
-          <option value="數據導向、客觀">數據導向、客觀</option>
-          <option value="說故事式、敘事風格">說故事式、敘事風格</option>
-          <option value="輕鬆幽默">輕鬆幽默</option>
+          <option>專業正式</option><option>親切易懂</option><option>熱情激勵</option>
+          <option>數據導向、客觀</option><option>說故事式、敘事風格</option><option>輕鬆幽默</option>
         </select>
       </div>
       <div class="field">
-        <label>視覺呈現偏好</label>
-        <select id="visual">
-          <option value="以文字重點為主，搭配少量圖表">文字重點為主</option>
-          <option value="圖表與數據可視化為主">圖表數據為主</option>
-          <option value="圖文並重，均衡排版">圖文均衡</option>
-          <option value="大量留白，簡潔設計感">簡潔留白風</option>
-          <option value="使用流程圖、架構圖等說明邏輯">流程圖架構圖</option>
-        </select>
+        <label>其他特殊需求（選填）</label>
+        <input type="text" id="extra" placeholder="例：使用 AARRR 框架、加入競品比較表..." />
       </div>
-
       <div class="field span2">
         <label>希望加入的特殊元素（可複選）</label>
         <div class="tag-group" id="extras">
@@ -1037,263 +300,349 @@
           <label class="tag-label"><input type="checkbox" value="真實案例故事">真實案例</label>
           <label class="tag-label checked"><input type="checkbox" value="數據統計支撐論點" checked>數據統計</label>
           <label class="tag-label"><input type="checkbox" value="類比或比喻說明">類比比喻</label>
-          <label class="tag-label"><input type="checkbox" value="問題思考或互動問句">互動問句</label>
+          <label class="tag-label"><input type="checkbox" value="互動問句">互動問句</label>
           <label class="tag-label"><input type="checkbox" value="行動呼籲（CTA）">行動呼籲</label>
-          <label class="tag-label"><input type="checkbox" value="演講者備忘稿（Speaker Notes）">演講備稿</label>
+          <label class="tag-label"><input type="checkbox" value="演講者備忘稿">演講備稿</label>
           <label class="tag-label"><input type="checkbox" value="SWOT 分析框架">SWOT 框架</label>
-          <label class="tag-label"><input type="checkbox" value="使用繁體中文標點符號規範">規範標點</label>
         </div>
       </div>
-
-      <div class="field span2">
-        <label>其他特殊需求（選填）</label>
-        <input type="text" id="extra_note" placeholder="例：請使用 AARRR 框架、加入競品比較表、每頁附上演講重點..." />
-      </div>
     </div>
-
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="resetForm()">重置表單</button>
-      <button class="btn btn-primary" onclick="generatePrompt()">✦ 生成 Prompt</button>
+      <button class="btn btn-primary" onclick="gen()">✦ 生成逐頁 Prompt</button>
     </div>
   </div>
 
-  <!-- OUTPUT SECTION -->
-  <div class="output-section" id="outputSection">
+  <!-- OUTPUT -->
+  <div class="output-sec" id="outSec">
     <div class="output-box">
-      <div class="output-label">生成完成 — 複製以下 Prompt 貼入 NotebookLM</div>
-      <textarea id="output-text" readonly></textarea>
+      <div class="output-lbl">生成完成 — 複製以下完整 Prompt 貼入 NotebookLM</div>
+      <textarea id="outText" readonly></textarea>
     </div>
-
-    <div class="output-actions">
-      <span class="char-count" id="charCount">0 字元</span>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-ghost" onclick="scrollToTop()">↑ 重新編輯</button>
-        <button class="btn btn-copy" id="copyBtn" onclick="copyPrompt()">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M0 5a2 2 0 012-2 1 1 0 000 2 1 1 0 011 1v8a1 1 0 001 1h8a1 1 0 001-1 1 1 0 002 0v-8a3 3 0 00-3-3H2a2 2 0 00-2 2v8a2 2 0 002 2 1 1 0 000-2 1 1 0 01-1-1V5z"/></svg>
-          複製 Prompt
+    <div class="out-actions">
+      <span class="char-cnt" id="charCnt">0 字元</span>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ 重新編輯</button>
+        <button class="btn btn-copy" id="copyBtn" onclick="doCopy()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M0 5a2 2 0 012-2 1 1 0 000 2 1 1 0 011 1v8a1 1 0 001 1h8a1 1 0 001-1 1 1 0 002 0v-8a3 3 0 00-3-3H2a2 2 0 00-2 2v8a2 2 0 002 2 1 1 0 000-2 1 1 0 01-1-1V5z"/></svg>
+          複製完整 Prompt
         </button>
       </div>
     </div>
-
     <div class="guide">
       <strong>📌 使用步驟：</strong>
       <ol>
-        <li>點擊「複製 Prompt」按鈕</li>
-        <li>開啟 <a href="https://notebooklm.google.com" target="_blank" style="color:#5a4800;font-weight:700;">NotebookLM</a>，建立新筆記本或開啟現有筆記本</li>
-        <li>點擊右下角「Chat」對話框，貼上 Prompt 送出</li>
-        <li>等待 NotebookLM 根據你的資料來源生成簡報大綱</li>
-        <li>取得大綱後可進一步請 AI 擴充每頁內容，或匯入 Google Slides / Gamma 成型</li>
+        <li>點擊「複製完整 Prompt」</li>
+        <li>開啟 <a href="https://notebooklm.google.com" target="_blank" style="color:#5a4800;font-weight:700">NotebookLM</a>，確保已上傳你的資料來源文件</li>
+        <li>點擊右下角 Chat 對話框，貼上 Prompt 並送出</li>
+        <li>NotebookLM 會根據你的資料逐頁生成詳細內容</li>
+        <li>取得逐頁大綱後可匯入 Google Slides、Gamma、Canva 進行美化</li>
       </ol>
     </div>
   </div>
-
 </main>
 
-<!-- ─── FOOTER ─── -->
 <footer>
-  <div class="footer-logo">
-    <div class="footer-dot"></div>
-    <div class="footer-name">華翼品牌形象設計</div>
-    <div class="footer-dot"></div>
-  </div>
-  <p>© 2025 <a href="https://huayi.tw" target="_blank" class="huayi-link">HUAYI BRAND DESIGN</a> · 華翼國際行銷有限公司 · All Rights Reserved</p>
-  <p style="margin-top:4px;">本工具由華翼品牌形象設計開發，供 AI 培訓課程學員使用</p>
+  <div class="footer-logo"><div class="footer-dot"></div><div class="footer-name">華翼品牌形象設計</div><div class="footer-dot"></div></div>
+  <p>© 2025 <a href="https://huayi.tw" target="_blank" class="footer-link">HUAYI BRAND DESIGN</a> ・ 華翼國際行銷有限公司 ・ All Rights Reserved</p>
+  <p>本工具由華翼品牌形象設計開發，供 AI 培訓課程學員免費使用</p>
 </footer>
 
 <script>
-  // Tag checkbox toggle
-  document.querySelectorAll('.tag-label').forEach(lbl => {
-    const cb = lbl.querySelector('input[type=checkbox]');
-    if (cb && cb.checked) lbl.classList.add('checked');
-    lbl.addEventListener('click', () => {
-      lbl.classList.toggle('checked', cb.checked);
-    });
+document.querySelectorAll('.tag-label').forEach(l=>{
+  const cb=l.querySelector('input');
+  if(cb&&cb.checked)l.classList.add('checked');
+  l.addEventListener('click',()=>setTimeout(()=>l.classList.toggle('checked',cb.checked),0));
+});
+
+let styleOn=true;
+function setStyle(v){
+  styleOn=v;
+  document.getElementById('sNeedBtn').classList.toggle('active',v);
+  document.getElementById('sNoBtn').classList.toggle('active',!v);
+  document.getElementById('styleWrap').classList.toggle('hidden',!v);
+}
+
+function gc(id){return Array.from(document.querySelectorAll('#'+id+' input:checked')).map(x=>x.value)}
+function gr(n){const e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:''}
+function gv(id){return document.getElementById(id).value.trim()}
+
+const FW={
+  problem_solution:{name:'問題與解決方案',desc:'先揭示受眾的核心痛點，再逐步提出解決方案，最後說明採用後的效益'},
+  story:{name:'起承轉合（故事法）',desc:'起（背景情境）→承（衝突發展）→轉（關鍵轉折）→合（結論行動）'},
+  timeline:{name:'時間軸演進',desc:'從過去背景→現在挑戰→未來方向，清晰呈現演進脈絡與趨勢'},
+  scqa:{name:'金字塔原則（SCQA）',desc:'情境(S)→衝突(C)→問題(Q)→答案(A)，結論先行、邏輯嚴謹'},
+  data_first:{name:'結論與數據先行',desc:'開頭即點出最重要結論與數據，後續章節逐一解釋與佐證'},
+  custom:{name:'自訂大綱邏輯',desc:'請依據資料內容特性，自由規劃最適合的章節順序與邏輯'}
+};
+
+function buildPages(secs,topic,audience,vs,extras){
+  const notes=extras.includes('演講者備忘稿');
+  const nb=notes?'\n  🎤 演講備稿：[此頁建議說話重點與銜接語，約50字]':'';
+  const dat=extras.includes('數據統計支撐論點')?'請以具體數字或統計數據支撐論點。':'';
+  const cas=extras.includes('真實案例故事')?'請引用真實案例強化說服力。':'';
+  const qot=extras.includes('引用名言或金句')?'請加入一句相關金句或名言。':'';
+  const ana=extras.includes('類比或比喻說明')?'複雜概念請用類比或比喻讓受眾易懂。':'';
+  const cta=extras.includes('行動呼籲（CTA）');
+  const qi=extras.includes('互動問句')?'請加入一個引發思考的互動問句。':'';
+  const sw=extras.includes('SWOT 分析框架');
+  const sNote=[dat,cas,qot,ana,qi].filter(Boolean).join(' ');
+  const hint=sNote?'\n  💡 風格提示：'+sNote:'';
+
+  let n=1;
+  const T={
+    '封面頁':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】封面頁
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請生成封面頁的完整文案內容：
+
+  📌 主標題：根據「${topic}」提煉一個10字以內、有吸引力的標題
+  📌 副標題：說明此簡報對「${audience}」的價值，讓人一眼看懂這份簡報的目的（15字以內）
+  📌 引言金句：一句讓受眾對本簡報產生期待感的話（可以是問句、數據或洞見）
+  📌 視覺建議：${vs||'專業封面'}，主視覺方向、配色與版面配置建議${nb}`,
+
+    '目錄頁':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】目錄頁
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請根據本簡報架構，生成清晰的目錄頁內容：
+
+  📌 章節列表：列出所有主要章節名稱（4–6個）
+  📌 章節說明：每個章節搭配一句10字以內的說明，讓受眾預知每節價值
+  📌 視覺建議：數字序號或圖示搭配章節名稱，視線引導流暢${nb}`,
+
+    '背景與問題說明':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】背景與問題說明
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請根據資料來源，說明此簡報的背景脈絡與核心問題：
+
+  📌 現況描述：「${audience}」目前面臨的主要情境或挑戰（2–3句）
+  📌 三大痛點：以條列方式呈現3個具體痛點或困境
+  📌 為什麼現在重要：此問題的迫切性或時機性（數據佐證優先）${hint}
+  📌 視覺建議：痛點標籤卡片、對比圖，或用數據呈現問題嚴重性${nb}`,
+
+    '核心內容':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】核心重點一
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請從資料來源提煉第一個核心重點：
+
+  📌 頁面標題：此重點的關鍵主張，10字以內
+  📌 三個支撐論點：條列呈現，每點配合數據或具體案例
+  📌 重點小結：一句話說明此重點對「${audience}」的實際意義${hint}
+  📌 視覺建議：長條圖、數字卡片或流程圖呈現${nb}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】核心重點二
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請從資料來源提煉第二個核心重點（邏輯上承接上頁）：
+
+  📌 頁面標題：此重點的關鍵主張，10字以內
+  📌 三個支撐論點：條列呈現，附實例佐證
+  📌 與整體論述的連結：此重點如何支撐簡報的核心訊息${hint}
+  📌 視覺建議：比較表、案例截圖或圖解說明${nb}${sw?`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】SWOT 分析
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請根據資料來源，生成關於「${topic}」的 SWOT 分析：
+
+  📌 優勢（Strengths）：2–3點
+  📌 劣勢（Weaknesses）：2–3點
+  📌 機會（Opportunities）：2–3點
+  📌 威脅（Threats）：2–3點
+  📌 視覺建議：四象限 SWOT 矩陣圖，清晰分色呈現${nb}`:''}`,
+
+    '競品或市場分析':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】競品或市場分析
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請根據資料來源，生成市場與競品分析：
+
+  📌 市場規模／趨勢：2–3個關鍵數字或成長數據
+  📌 競品比較表：列出3–4個競品，比較4個核心維度（以表格呈現）
+  📌 我方差異化優勢：2–3點我方的獨特價值或競爭優勢
+  📌 視覺建議：比較表格、雷達圖或市場定位圖${nb}`,
+
+    '解決方案或行動建議':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】解決方案
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請根據資料來源，提出針對「${topic}」的具體解決方案：
+
+  📌 方案一：名稱、核心做法（2句）、預期效果
+  📌 方案二：名稱、核心做法（2句）、預期效果
+  📌 方案三（如有）：名稱、核心做法（2句）、預期效果
+  📌 推薦說明：為什麼這個方案最適合「${audience}」？${hint}
+  📌 視覺建議：卡片式呈現各方案，推薦方案用強調色突顯${cta?'\n  📌 行動呼籲：一句強有力的 CTA 語句，推動受眾採取行動':''}${nb}`,
+
+    '時程規劃或 Roadmap':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】時程規劃／Roadmap
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請生成具體的執行時程規劃：
+
+  📌 階段一（第1–3個月）：2–3個關鍵行動項目與里程碑
+  📌 階段二（第3–6個月）：2–3個關鍵行動項目與里程碑
+  📌 階段三（6個月以後）：長期目標與預期成果
+  📌 每個階段標示負責角色或部門（如適用）
+  📌 視覺建議：橫向時間軸、甘特圖或里程碑旗幟設計${nb}`,
+
+    '預算或資源說明':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】預算或資源說明
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請生成預算規劃說明：
+
+  📌 主要成本項目：3–5項，條列說明用途與金額區間
+  📌 分級方案（如有）：基礎版 vs 進階版的差異與預算對比
+  📌 投資效益說明：這筆投入預計帶來哪些可量化效益
+  📌 視覺建議：表格式成本分解，搭配圓餅圖呈現比例${nb}`,
+
+    '結論與下一步行動':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】結論與下一步行動
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請生成有力的結論頁：
+
+  📌 三大收穫回顧：三句話總結本簡報最重要的3個洞見或收穫
+  📌 下一步行動（Next Steps）：列出「${audience}」應採取的2–3個具體行動
+  📌 時間點建議：每個行動附上建議時程或截止日${cta?'\n  📌 行動呼籲（CTA）：一句強而有力的號召語句，推動受眾立即行動':''}
+  📌 視覺建議：數字卡片或勾選清單設計，營造緊迫感與行動感${nb}`,
+
+    'Q&A 互動頁':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】Q&A 互動頁
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請生成問答互動頁內容：
+
+  📌 開場語：邀請受眾提問的引導語（2句）
+  📌 預設 FAQ：根據本簡報內容，預測3個受眾最可能詢問的問題並附簡短答案
+  📌 聯絡資訊區塊：預留姓名、Email、社群連結填入空間
+  📌 視覺建議：對話泡泡設計或大問號圖示，輕鬆歡迎的氛圍${nb}`,
+
+    '附錄或補充資料':()=>
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【第 ${n++} 頁】附錄／補充資料
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+請整理補充資料頁：
+
+  📌 延伸數據或說明：正式簡報未呈現但可能被詢問的補充資訊
+  📌 參考資料來源：列出本簡報引用的主要資料出處
+  📌 術語解釋：重要縮寫或專業術語的白話說明（如適用）
+  📌 視覺建議：精簡清單排版，注重易讀性${nb}`
+  };
+  return secs.map(s=>T[s]?T[s]():'').filter(Boolean).join('\n\n');
+}
+
+function gen(){
+  const topic=gv('topic'),audience=gv('audience');
+  if(!topic){alert('請填入「簡報主題」');document.getElementById('topic').focus();return}
+  if(!audience){alert('請選擇「目標受眾」');document.getElementById('audience').focus();return}
+  const language=gv('language')||'繁體中文';
+  const slides=document.getElementById('slides').value;
+  const duration=gv('duration')||'15-20分鐘';
+  const purpose=document.getElementById('purpose').value;
+  const tone=document.getElementById('tone').value;
+  const keypoints=gv('keypoints');
+  const context=gv('context');
+  const extra=gv('extra');
+  const sections=gc('sections');
+  const extras=gc('extras');
+  const fwKey=gr('fw')||'problem_solution';
+  const fw=FW[fwKey]||FW.custom;
+  const vs=styleOn?(gr('vs')||''):'';
+  const kp=keypoints?keypoints.split('\n').filter(l=>l.trim()):[];
+
+  let p=`你是一位專業的簡報顧問，請根據我的 NotebookLM 筆記本資料，協助我生成一份完整的逐頁簡報內容。
+請嚴格遵照以下每一頁的 Prompt 指示生成內容，資料不足處請標示「[需補充資料]」，切勿憑空捏造。
+
+╔══════════════════════════════════════════╗
+  📌 簡報基本資訊
+╚══════════════════════════════════════════╝
+・簡報主題：${topic}
+・目標受眾：${audience}
+・使用語言：${language}
+・投影片頁數：約 ${slides} 張
+・預計時長：${duration}
+・簡報目的：${purpose}
+・整體語調：${tone}${vs?'\n・視覺風格：'+vs:''}
+`;
+
+  if(kp.length){p+=`
+╔══════════════════════════════════════════╗
+  🎯 核心訊息（整份簡報需貫穿以下重點）
+╚══════════════════════════════════════════╝
+${kp.map((k,i)=>`${i+1}. ${k.trim()}`).join('\n')}
+`}
+
+  p+=`
+╔══════════════════════════════════════════╗
+  🗂️ 大綱架構邏輯：${fw.name}
+╚══════════════════════════════════════════╝
+${fw.desc}
+`;
+
+  if(context){p+=`
+╔══════════════════════════════════════════╗
+  📚 補充背景資料
+╚══════════════════════════════════════════╝
+${context}
+`}
+
+  if(extra){p+=`
+╔══════════════════════════════════════════╗
+  ⚙️ 其他特殊需求
+╚══════════════════════════════════════════╝
+${extra}
+`}
+
+  p+=`
+╔══════════════════════════════════════════╗
+  📋 逐頁 Prompt（請依序生成每一頁內容）
+╚══════════════════════════════════════════╝
+
+`;
+  p+=buildPages(sections,topic,audience,vs,extras);
+  p+=`
+
+╔══════════════════════════════════════════╗
+  ✅ 全部頁面完成後，請額外提供：
+╚══════════════════════════════════════════╝
+・簡報摘要（50字以內）：總結這份簡報的核心價值
+・建議補強項目：指出哪些頁面因資料不足，需要我補充哪些內容`;
+
+  document.getElementById('outText').value=p;
+  document.getElementById('charCnt').textContent=p.length.toLocaleString()+' 字元';
+  const s=document.getElementById('outSec');
+  s.classList.add('visible');
+  setTimeout(()=>s.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+function doCopy(){
+  const t=document.getElementById('outText').value;
+  if(!t)return;
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=document.getElementById('copyBtn');
+    b.classList.add('copied');
+    b.innerHTML='<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"/></svg> 已複製！';
+    setTimeout(()=>{b.classList.remove('copied');b.innerHTML='<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M0 5a2 2 0 012-2 1 1 0 000 2 1 1 0 011 1v8a1 1 0 001 1h8a1 1 0 001-1 1 1 0 002 0v-8a3 3 0 00-3-3H2a2 2 0 00-2 2v8a2 2 0 002 2 1 1 0 000-2 1 1 0 01-1-1V5z"/></svg> 複製完整 Prompt';},2500);
   });
+}
 
-  let styleNeeded = true;
-
-  function setStyleNeed(val) {
-    styleNeeded = val;
-    document.getElementById('styleNeedBtn').classList.toggle('active', val);
-    document.getElementById('styleNoBtn').classList.toggle('active', !val);
-    document.getElementById('stylePickerWrap').classList.toggle('hidden', !val);
-  }
-
-  function getChecked(groupId) {
-    return Array.from(document.querySelectorAll(`#${groupId} input[type=checkbox]:checked`))
-      .map(cb => cb.value);
-  }
-
-  function getRadio(name) {
-    const el = document.querySelector(`input[name="${name}"]:checked`);
-    return el ? el.value : '';
-  }
-
-  function generatePrompt() {
-    const topic    = document.getElementById('topic').value.trim();
-    const audience = document.getElementById('audience').value;
-    const language = document.getElementById('language').value;
-    const slides   = document.getElementById('slides').value;
-    const duration = document.getElementById('duration').value;
-    const purpose  = document.getElementById('purpose').value;
-    const tone     = document.getElementById('tone').value;
-    const visual   = document.getElementById('visual').value;
-    const keypoints = document.getElementById('keypoints').value.trim();
-    const context  = document.getElementById('context').value.trim();
-    const extraNote = document.getElementById('extra_note').value.trim();
-    const sections = getChecked('sections');
-    const extras   = getChecked('extras');
-    const framework = getRadio('framework');
-    const vstyle    = styleNeeded ? getRadio('vstyle') : '';
-
-    if (!topic) {
-      alert('請先填入「簡報主題」再生成 Prompt！');
-      document.getElementById('topic').focus();
-      return;
-    }
-
-    if (!audience) {
-      alert('請選擇「目標受眾」');
-      document.getElementById('audience').focus();
-      return;
-    }
-
-    let prompt = `# NotebookLM 簡報大綱生成請求\n\n`;
-    prompt += `請根據我的筆記本資料來源，協助我生成一份完整的簡報大綱，需求如下：\n\n`;
-
-    prompt += `## 📌 基本資訊\n`;
-    prompt += `- **簡報主題**：${topic}\n`;
-    prompt += `- **目標受眾**：${audience}\n`;
-    prompt += `- **使用語言**：${language}\n`;
-    prompt += `- **投影片數量**：${slides}\n`;
-    prompt += `- **預計時長**：${duration}\n`;
-    prompt += `- **簡報目的**：${purpose}\n\n`;
-
-    if (framework) {
-      prompt += `## 🗂️ 大綱架構邏輯\n`;
-      prompt += `請採用「**${framework}**」的架構來組織簡報內容。\n`;
-      const fwDesc = {
-        '問題與解決方案': '先揭示受眾的核心痛點，再逐步呈現解決方案與效益。',
-        '起承轉合（故事法）': '以故事敘事弧線展開，讓受眾產生情感共鳴後再帶入重點。',
-        '時間軸演進': '從過去背景→現在挑戰→未來方向，清晰呈現脈絡與演進。',
-        '金字塔原則（SCQA）': '先給出情境(S)→衝突(C)→問題(Q)→答案(A)，結論先行邏輯嚴謹。',
-        '結論與數據先行': '開頭即點出最重要結論與數據，後續章節逐一解釋佐證。',
-        '自訂大綱邏輯': '請依據資料內容的特性，自由規劃最適合的章節順序與邏輯。'
-      };
-      if (fwDesc[framework]) prompt += `架構說明：${fwDesc[framework]}\n`;
-      prompt += `\n`;
-    }
-
-    if (sections.length > 0) {
-      prompt += `## 📐 章節結構\n`;
-      prompt += `請依序包含以下章節：\n`;
-      sections.forEach((s, i) => {
-        prompt += `${i + 1}. ${s}\n`;
-      });
-      prompt += `\n`;
-    }
-
-    if (keypoints) {
-      prompt += `## 🎯 核心訊息（必須傳達）\n`;
-      const pts = keypoints.split('\n').filter(l => l.trim());
-      pts.forEach(p => {
-        prompt += `- ${p.trim()}\n`;
-      });
-      prompt += `\n`;
-    }
-
-    prompt += `## 🎨 風格偏好\n`;
-    prompt += `- **語調**：${tone}\n`;
-    prompt += `- **版面視覺**：${visual}\n`;
-
-    if (vstyle) {
-      prompt += `- **建議視覺風格**：${vstyle}（請在每頁視覺建議中參考此風格方向）\n`;
-    }
-
-    if (extras.length > 0) {
-      prompt += `- **特殊元素**：${extras.join('、')}\n`;
-    }
-    prompt += `\n`;
-
-    if (context) {
-      prompt += `## 📚 補充背景資料\n${context}\n\n`;
-    }
-
-    if (extraNote) {
-      prompt += `## ⚙️ 其他特殊需求\n${extraNote}\n\n`;
-    }
-
-    prompt += `---\n\n`;
-    prompt += `## 📋 輸出格式要求\n`;
-    prompt += `請按以下格式輸出每一張投影片：\n\n`;
-    prompt += `**第 N 頁｜[頁面標題]**\n`;
-    prompt += `- 主要內容要點 1\n`;
-    prompt += `- 主要內容要點 2\n`;
-    prompt += `- 主要內容要點 3\n`;
-
-    if (extras.includes('演講者備忘稿（Speaker Notes）')) {
-      prompt += `> 🎤 演講備忘稿：[此頁建議說話重點與銜接語]\n`;
-    }
-
-    prompt += `\n（視覺建議：[建議使用的圖表類型或視覺元素]）\n\n`;
-    prompt += `---\n\n`;
-    prompt += `請根據我的筆記本資料，確保內容有事實依據，並在資料不足的地方標示「[需補充資料]」。\n`;
-    prompt += `整體大綱完成後，請提供一段「簡報摘要」（50字以內），方便我快速向他人說明這份簡報的核心價值。`;
-
-    const out = document.getElementById('output-text');
-    out.value = prompt;
-    document.getElementById('charCount').textContent = `${prompt.length} 字元`;
-
-    const sec = document.getElementById('outputSection');
-    sec.classList.add('visible');
-    setTimeout(() => {
-      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }
-
-  function copyPrompt() {
-    const text = document.getElementById('output-text').value;
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('copyBtn');
-      btn.classList.add('copied');
-      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"/></svg> 已複製！`;
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6z"/><path d="M0 5a2 2 0 012-2 1 1 0 000 2 1 1 0 011 1v8a1 1 0 001 1h8a1 1 0 001-1 1 1 0 002 0v-8a3 3 0 00-3-3H2a2 2 0 00-2 2v8a2 2 0 002 2 1 1 0 000-2 1 1 0 01-1-1V5z"/></svg> 複製 Prompt`;
-      }, 2500);
-    });
-  }
-
-  function resetForm() {
-    if (!confirm('確定要清空所有欄位嗎？')) return;
-    document.getElementById('topic').value = '';
-    document.getElementById('audience').value = '';
-    document.getElementById('keypoints').value = '';
-    document.getElementById('context').value = '';
-    document.getElementById('extra_note').value = '';
-    document.getElementById('language').value = '繁體中文';
-    document.getElementById('slides').value = '10-15張（標準版）';
-    document.getElementById('duration').value = '15-20分鐘';
-    document.getElementById('purpose').selectedIndex = 0;
-    document.getElementById('tone').selectedIndex = 0;
-    document.getElementById('visual').selectedIndex = 2;
-    document.querySelectorAll('.tag-label input[type=checkbox]').forEach(cb => {
-      cb.checked = cb.defaultChecked;
-      cb.closest('.tag-label').classList.toggle('checked', cb.defaultChecked);
-    });
-    const firstFw = document.querySelector('input[name="framework"]');
-    if (firstFw) firstFw.checked = true;
-    const firstVs = document.querySelector('input[name="vstyle"]');
-    if (firstVs) firstVs.checked = true;
-    setStyleNeed(true);
-    document.getElementById('outputSection').classList.remove('visible');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+function resetForm(){
+  if(!confirm('確定要清空所有欄位嗎？'))return;
+  ['topic','keypoints','context','extra'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('audience').value='';
+  document.getElementById('outSec').classList.remove('visible');
+  document.querySelectorAll('.tag-label input').forEach(cb=>{cb.checked=cb.defaultChecked;cb.closest('.tag-label').classList.toggle('checked',cb.defaultChecked)});
+  document.querySelector('input[name="fw"]').checked=true;
+  document.querySelector('input[name="vs"]').checked=true;
+  setStyle(true);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 </script>
 </body>
 </html>
