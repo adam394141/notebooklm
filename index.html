@@ -525,7 +525,154 @@
   }
   .huayi-link:hover { text-decoration: underline; }
 
-  /* ─── HELPERS ─── */
+  /* ─── FRAMEWORK RADIO CARDS ─── */
+  .framework-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .framework-label { cursor: pointer; }
+  .framework-label input { display: none; }
+
+  .fw-card {
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 14px 12px 12px;
+    background: var(--surface-2);
+    transition: all 0.15s;
+    position: relative;
+    text-align: center;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .fw-top {
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .fw-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .fw-badge.recommended {
+    background: var(--brand);
+    color: var(--ink);
+  }
+
+  .fw-icon { font-size: 22px; line-height: 1; }
+
+  .fw-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .fw-desc {
+    font-size: 11px;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+
+  .fw-card:hover {
+    border-color: var(--brand);
+    background: #fffbea;
+  }
+
+  .framework-label input:checked + .fw-card {
+    border-color: var(--brand);
+    border-width: 2px;
+    background: #fffbea;
+    box-shadow: 0 0 0 3px rgba(252,200,0,0.15);
+  }
+
+  /* ─── TOGGLE BUTTON ─── */
+  .toggle-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .toggle-btn {
+    padding: 9px 22px;
+    border-radius: var(--radius-sm);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--ink-muted);
+    transition: all 0.15s;
+  }
+
+  .toggle-btn.active {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--ink);
+  }
+
+  /* ─── STYLE RADIO CARDS ─── */
+  .style-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .style-label { cursor: pointer; }
+  .style-label input { display: none; }
+
+  .sty-card {
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 14px 10px 12px;
+    background: var(--surface-2);
+    transition: all 0.15s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    min-height: 95px;
+  }
+
+  .sty-icon { font-size: 22px; line-height: 1; }
+
+  .sty-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .sty-card:hover {
+    border-color: var(--brand);
+    background: #fffbea;
+  }
+
+  .style-label input:checked + .sty-card {
+    border-color: var(--brand);
+    border-width: 2px;
+    background: #fffbea;
+    box-shadow: 0 0 0 3px rgba(252,200,0,0.15);
+  }
+
+  #stylePickerWrap { transition: opacity 0.2s; }
+  #stylePickerWrap.hidden { opacity: 0.3; pointer-events: none; }
+
+
   .hint {
     font-size: 11.5px;
     color: var(--ink-muted);
@@ -695,13 +842,169 @@
     </div>
   </div>
 
-  <!-- SECTION 3: STYLE -->
+  <!-- SECTION 3: 簡報大綱架構 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">🗂️</div>
+      <div class="card-title">
+        簡報大綱架構
+        <span>Presentation Framework</span>
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="field">
+        <label>選擇大綱邏輯架構</label>
+        <div class="framework-group" id="frameworks">
+          <label class="framework-label">
+            <input type="radio" name="framework" value="問題與解決方案" checked>
+            <div class="fw-card">
+              <div class="fw-top">
+                <span class="fw-badge recommended">推薦</span>
+              </div>
+              <div class="fw-icon">🎯</div>
+              <div class="fw-name">問題與解決方案</div>
+              <div class="fw-desc">先揭示痛點，再提出解法</div>
+            </div>
+          </label>
+          <label class="framework-label">
+            <input type="radio" name="framework" value="起承轉合（故事法）">
+            <div class="fw-card">
+              <div class="fw-top"></div>
+              <div class="fw-icon">📖</div>
+              <div class="fw-name">起承轉合（故事法）</div>
+              <div class="fw-desc">敘事弧線，情感共鳴</div>
+            </div>
+          </label>
+          <label class="framework-label">
+            <input type="radio" name="framework" value="時間軸演進">
+            <div class="fw-card">
+              <div class="fw-top"></div>
+              <div class="fw-icon">⏱️</div>
+              <div class="fw-name">時間軸演進</div>
+              <div class="fw-desc">過去→現在→未來脈絡</div>
+            </div>
+          </label>
+          <label class="framework-label">
+            <input type="radio" name="framework" value="金字塔原則（SCQA）">
+            <div class="fw-card">
+              <div class="fw-top"></div>
+              <div class="fw-icon">🔺</div>
+              <div class="fw-name">金字塔原則（SCQA）</div>
+              <div class="fw-desc">結論先行，邏輯嚴謹</div>
+            </div>
+          </label>
+          <label class="framework-label">
+            <input type="radio" name="framework" value="結論與數據先行">
+            <div class="fw-card">
+              <div class="fw-top"></div>
+              <div class="fw-icon">📊</div>
+              <div class="fw-name">結論與數據先行</div>
+              <div class="fw-desc">先亮結果，再解釋原因</div>
+            </div>
+          </label>
+          <label class="framework-label">
+            <input type="radio" name="framework" value="自訂大綱邏輯">
+            <div class="fw-card">
+              <div class="fw-top"></div>
+              <div class="fw-icon">✏️</div>
+              <div class="fw-name">自訂大綱邏輯</div>
+              <div class="fw-desc">由 AI 依內容自由發揮</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: 建議視覺風格 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">🖼️</div>
+      <div class="card-title">
+        建議視覺風格
+        <span>Visual Style Preference</span>
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="field">
+        <label>是否指定視覺風格？</label>
+        <div class="toggle-row">
+          <button class="toggle-btn active" id="styleNeedBtn" onclick="setStyleNeed(true)">✅ 需要</button>
+          <button class="toggle-btn" id="styleNoBtn" onclick="setStyleNeed(false)">✕ 不需要</button>
+        </div>
+      </div>
+      <div class="field" id="stylePickerWrap">
+        <label>選擇視覺風格</label>
+        <div class="style-group" id="styleGroup">
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="專業企業商務風格" checked>
+            <div class="sty-card">
+              <span class="fw-badge recommended">推薦</span>
+              <div class="sty-icon">🖥️</div>
+              <div class="sty-name">專業企業商務風格</div>
+            </div>
+          </label>
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="手繪日記風格＋主角插圖">
+            <div class="sty-card">
+              <div class="sty-icon">🎨</div>
+              <div class="sty-name">手繪日記風格＋主角插圖</div>
+            </div>
+          </label>
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="溫馨插畫風格">
+            <div class="sty-card">
+              <div class="sty-icon">🌸</div>
+              <div class="sty-name">溫馨插畫風格</div>
+            </div>
+          </label>
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="高對比度極簡風格">
+            <div class="sty-card">
+              <div class="sty-icon">◼️</div>
+              <div class="sty-name">高對比度極簡風格</div>
+            </div>
+          </label>
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="2.5D 等距視角風格＋主角">
+            <div class="sty-card">
+              <div class="sty-icon">🧊</div>
+              <div class="sty-name">2.5D 等距視角風格＋主角</div>
+            </div>
+          </label>
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="3D 奶油 UI 科技風格">
+            <div class="sty-card">
+              <div class="sty-icon">💠</div>
+              <div class="sty-name">3D 奶油 UI 科技風格</div>
+            </div>
+          </label>
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="雜誌編輯風格">
+            <div class="sty-card">
+              <div class="sty-icon">📰</div>
+              <div class="sty-name">雜誌編輯風格</div>
+            </div>
+          </label>
+          <label class="style-label">
+            <input type="radio" name="vstyle" value="資訊圖表（Infographic）風格">
+            <div class="sty-card">
+              <div class="sty-icon">📈</div>
+              <div class="sty-name">資訊圖表 Infographic</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: STYLE -->
   <div class="card">
     <div class="card-header">
       <div class="card-icon">🎨</div>
       <div class="card-title">
-        風格與格式偏好
-        <span>Style &amp; Format</span>
+        語調與格式偏好
+        <span>Tone &amp; Format</span>
       </div>
     </div>
     <div class="form-grid">
@@ -807,9 +1110,23 @@
     });
   });
 
+  let styleNeeded = true;
+
+  function setStyleNeed(val) {
+    styleNeeded = val;
+    document.getElementById('styleNeedBtn').classList.toggle('active', val);
+    document.getElementById('styleNoBtn').classList.toggle('active', !val);
+    document.getElementById('stylePickerWrap').classList.toggle('hidden', !val);
+  }
+
   function getChecked(groupId) {
     return Array.from(document.querySelectorAll(`#${groupId} input[type=checkbox]:checked`))
       .map(cb => cb.value);
+  }
+
+  function getRadio(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '';
   }
 
   function generatePrompt() {
@@ -826,6 +1143,8 @@
     const extraNote = document.getElementById('extra_note').value.trim();
     const sections = getChecked('sections');
     const extras   = getChecked('extras');
+    const framework = getRadio('framework');
+    const vstyle    = styleNeeded ? getRadio('vstyle') : '';
 
     if (!topic) {
       alert('請先填入「簡報主題」再生成 Prompt！');
@@ -850,6 +1169,21 @@
     prompt += `- **預計時長**：${duration}\n`;
     prompt += `- **簡報目的**：${purpose}\n\n`;
 
+    if (framework) {
+      prompt += `## 🗂️ 大綱架構邏輯\n`;
+      prompt += `請採用「**${framework}**」的架構來組織簡報內容。\n`;
+      const fwDesc = {
+        '問題與解決方案': '先揭示受眾的核心痛點，再逐步呈現解決方案與效益。',
+        '起承轉合（故事法）': '以故事敘事弧線展開，讓受眾產生情感共鳴後再帶入重點。',
+        '時間軸演進': '從過去背景→現在挑戰→未來方向，清晰呈現脈絡與演進。',
+        '金字塔原則（SCQA）': '先給出情境(S)→衝突(C)→問題(Q)→答案(A)，結論先行邏輯嚴謹。',
+        '結論與數據先行': '開頭即點出最重要結論與數據，後續章節逐一解釋佐證。',
+        '自訂大綱邏輯': '請依據資料內容的特性，自由規劃最適合的章節順序與邏輯。'
+      };
+      if (fwDesc[framework]) prompt += `架構說明：${fwDesc[framework]}\n`;
+      prompt += `\n`;
+    }
+
     if (sections.length > 0) {
       prompt += `## 📐 章節結構\n`;
       prompt += `請依序包含以下章節：\n`;
@@ -870,7 +1204,11 @@
 
     prompt += `## 🎨 風格偏好\n`;
     prompt += `- **語調**：${tone}\n`;
-    prompt += `- **視覺呈現**：${visual}\n`;
+    prompt += `- **版面視覺**：${visual}\n`;
+
+    if (vstyle) {
+      prompt += `- **建議視覺風格**：${vstyle}（請在每頁視覺建議中參考此風格方向）\n`;
+    }
 
     if (extras.length > 0) {
       prompt += `- **特殊元素**：${extras.join('、')}\n`;
@@ -944,6 +1282,11 @@
       cb.checked = cb.defaultChecked;
       cb.closest('.tag-label').classList.toggle('checked', cb.defaultChecked);
     });
+    const firstFw = document.querySelector('input[name="framework"]');
+    if (firstFw) firstFw.checked = true;
+    const firstVs = document.querySelector('input[name="vstyle"]');
+    if (firstVs) firstVs.checked = true;
+    setStyleNeed(true);
     document.getElementById('outputSection').classList.remove('visible');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
